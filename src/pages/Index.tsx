@@ -114,7 +114,7 @@ const Index = () => {
       </div>
 
       {/* Main KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         <KPICard
           title="Total de Leads Entrantes"
           value={kpis.totalLeads.toLocaleString()}
@@ -138,13 +138,6 @@ const Index = () => {
           size="lg"
         />
         <KPICard
-          title="Desea un Crédito"
-          value={kpis.deseaCreditoCount.toLocaleString()}
-          subtitle={periodLabel}
-          icon={CheckCircle}
-          size="lg"
-        />
-        <KPICard
           title="No Califican"
           value={kpis.noCalifican.toLocaleString()}
           subtitle={periodLabel}
@@ -158,22 +151,6 @@ const Index = () => {
           subtitle={periodLabel}
           icon={TrendingUp}
           variant="accent"
-          size="lg"
-        />
-        <KPICard
-          title="Ganancia Mensual"
-          value={formatCurrency(kpis.gananciaMensual)}
-          subtitle={periodLabel}
-          icon={DollarSign}
-          variant="success"
-          size="lg"
-        />
-        <KPICard
-          title="Ganancia Total"
-          value={formatCurrency(kpis.gananciaTotal)}
-          subtitle="Histórico Total"
-          icon={DollarSign}
-          variant="primary"
           size="lg"
         />
       </div>
@@ -413,7 +390,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="mt-8 pt-6 border-t border-border text-center">
         <p className="text-sm text-muted-foreground">
-          Dashboard de Desempeño – Agente Funnel Monte Midas · Powered by{" "}
+          Dashboard de Desempeño – Agente Funnel Osnex · Powered by{" "}
           <span className="font-semibold text-primary">Simplia IA</span>
         </p>
       </footer>

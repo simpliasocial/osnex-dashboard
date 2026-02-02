@@ -1,7 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 import { config } from '../config';
 
-// Obtener las variables de configuración
+// RECONECTADO - Supabase del nuevo proyecto
+
+// Obtener las credenciales desde config.ts
 const supabaseUrl = config.supabase.url;
 const supabaseAnonKey = config.supabase.anonKey;
 
@@ -14,33 +16,14 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: true,
   },
 });
 
-// Tipos de ayuda para TypeScript
+// Tipos para TypeScript
 export type Database = {
-  // Aquí puedes definir los tipos de tus tablas de Supabase
-  // Por ejemplo:
-  // public: {
-  //   Tables: {
-  //     users: {
-  //       Row: {
-  //         id: string;
-  //         email: string;
-  //         created_at: string;
-  //       };
-  //       Insert: {
-  //         id?: string;
-  //         email: string;
-  //         created_at?: string;
-  //       };
-  //       Update: {
-  //         id?: string;
-  //         email?: string;
-  //         created_at?: string;
-  //       };
-  //     };
-  //   };
-  // };
+  public: {
+    Tables: {
+      // Aquí puedes definir los tipos de tus tablas de Supabase
+    };
+  };
 };

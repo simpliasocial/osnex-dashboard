@@ -15,17 +15,17 @@ const ChatwootPage = () => {
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
-    const [labels, setLabels] = useState<string[]>([]);
+    // NUEVO ESQUEMA DE ETIQUETAS - 6 etiquetas fijas
+    const [labels] = useState<string[]>([
+        'a_',
+        'b1',
+        'b2',
+        'c1',
+        'cita_agendada',
+        'leads_entrantes'
+    ]);
     const [selectedLabel, setSelectedLabel] = useState<string>('all');
     const [meta, setMeta] = useState<any>({});
-
-    useEffect(() => {
-        const loadLabels = async () => {
-            const fetchedLabels = await chatwootService.getLabels();
-            setLabels(fetchedLabels);
-        };
-        loadLabels();
-    }, []);
 
     const fetchConversations = async () => {
         setLoading(true);

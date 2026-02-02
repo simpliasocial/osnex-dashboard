@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { config } from '../config';
 
+// RECONECTADO - Chatwoot del nuevo proyecto
+
 const CHATWOOT_API_URL = config.chatwoot.baseUrl;
 const API_TOKEN = config.chatwoot.apiToken;
 
@@ -15,6 +17,7 @@ export interface ChatwootConversation {
             email: string;
             phone_number: string;
             thumbnail: string;
+            custom_attributes?: any;
         };
     };
     labels: string[];
@@ -34,8 +37,8 @@ export const chatwootService = {
         status?: string;
         sort_by?: string;
         q?: string;
-        since?: string; // ISO date string
-        until?: string; // ISO date string
+        since?: string;
+        until?: string;
         labels?: string[];
     } = {}): Promise<{ payload: ChatwootConversation[]; meta: any }> => {
         try {
@@ -93,14 +96,14 @@ export const chatwootService = {
                 },
                 params: {
                     page: params.page || 1,
-                    status: 'all', // Always fetch all status as requested
+                    status: 'all',
                     sort_by: params.sort_by || 'last_activity_at_desc',
-                    since: params.since, // Added missing parameter
+                    since: params.since,
                     until: params.until,
                     labels: params.labels ? params.labels.join(',') : undefined,
                 },
             });
-            return response.data.data; // Returns { payload: [], meta: {} }
+            return response.data.data;
         } catch (error) {
             console.error('Error fetching Chatwoot conversations:', error);
             throw error;
@@ -114,7 +117,6 @@ export const chatwootService = {
                     api_access_token: API_TOKEN,
                 },
             });
-            // The API returns an array of objects { title: string, ... }, we only need the titles
             return response.data.payload.map((label: any) => label.title);
         } catch (error) {
             console.error('Error fetching Chatwoot labels:', error);

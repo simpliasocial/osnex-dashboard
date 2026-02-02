@@ -1,10 +1,13 @@
+// CONFIGURACIÓN DEL NUEVO PROYECTO
+// Actualizado con las credenciales del nuevo proyecto
+
 export const config = {
     supabase: {
-        url: "https://vbcswxtioavfywxplkus.supabase.co",
-        anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZiY3N3eHRpb2F2Znl3eHBsa3VzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4Mjc1OTEsImV4cCI6MjA2OTQwMzU5MX0.VaAQLzMhJh35AQpiXdC6SO8yXIzC-LQwF2aKdw-ntK8"
+        url: "https://oqmjnvbbznzsnecvswex.supabase.co",
+        anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xbWpudmJiem56c25lY3Zzd2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMDY5MTIsImV4cCI6MjA4NDU4MjkxMn0.wtpu0jyoOQ8NfJqMmAgietotqxCXG8bV_MwH3Ownofw"
     },
     chatwoot: {
         baseUrl: "/chatwoot-api/api/v1/accounts/1",
-        apiToken: "Zz4kfVeARYpjnVfiDE7SyobG"
+        apiToken: "2U4prZAkAJrFHGAo5CreCaZy"
     }
 };

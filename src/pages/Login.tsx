@@ -12,32 +12,32 @@ const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+        setError('');
 
         try {
-            // Call the secure RPC function to verify credentials
-            const { data, error } = await supabase.rpc('verify_custom_credentials', {
+            // Autenticación con Supabase - RECONECTADO
+            const { data, error: rpcError } = await supabase.rpc('verify_custom_credentials', {
                 p_username: username,
-                p_password: password,
+                p_password: password
             });
 
-            if (error) throw error;
+            if (rpcError) throw rpcError;
 
             if (data === true) {
-                // Login successful
                 localStorage.setItem('isAuthenticated', 'true');
-                toast.success('Bienvenido a Monte Midas');
                 navigate('/');
             } else {
-                toast.error('Credenciales incorrectas');
+                setError('Credenciales incorrectas');
             }
-        } catch (error: any) {
-            console.error('Login error:', error);
-            toast.error('Error al iniciar sesión');
+        } catch (err: any) {
+            console.error('Login error:', err);
+            setError(err.message || 'Error al iniciar sesión');
         } finally {
             setLoading(false);
         }
@@ -52,7 +52,7 @@ const Login = () => {
                             <Lock className="w-10 h-10 text-primary" />
                         </div>
                     </div>
-                    <CardTitle className="text-3xl font-bold tracking-tight text-primary">Monte Midas</CardTitle>
+                    <CardTitle className="text-3xl font-bold tracking-tight text-primary">Osnex</CardTitle>
                     <CardDescription className="text-slate-400 text-lg">
                         Dashboard de Control
                     </CardDescription>

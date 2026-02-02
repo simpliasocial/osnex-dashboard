@@ -129,51 +129,55 @@ export const useDashboardData = (selectedMonth: Date | null = null, selectedWeek
             // Calculate KPIs from filtered data
             const totalLeads = kpiConversations.length;
 
-            // Helper to count by label
+            // Helper to count by label - NUEVO ESQUEMA DE 6 ETIQUETAS
             const countByLabel = (label: string) =>
                 kpiConversations.filter(c => c.labels && c.labels.includes(label)).length;
 
-            const leadsInteresados = countByLabel('interesado');
-            const citasAgendadas = countByLabel('agenda_cita');
-            const noAplicaCount = countByLabel('no_aplica');
-            const noTieneJoyasCount = countByLabel('no_tiene_joyas_oro');
-            const deseaCreditoCount = countByLabel('desea_un_credito');
-            const tieneDudasCount = countByLabel('tiene_dudas');
-            const solicitaInfoCount = countByLabel('solicita_informacion');
+            // Nuevas etiquetas:
+            const leadsEntrantesCount = countByLabel('leads_entrantes');
+            const a_Count = countByLabel('a_');
+            const b1Count = countByLabel('b1');
+            const b2Count = countByLabel('b2');
+            const c1Count = countByLabel('c1');
+            const citasAgendadas = countByLabel('cita_agendada');
 
-            const noCalifican = noAplicaCount + noTieneJoyasCount;
+            // KPIs simplificados - NUEVA LÓGICA
+            const leadsInteresados = a_Count; // Solo a_ = clientes que piden/aceptan agendar
             const tasaAgendamiento = totalLeads > 0 ? Math.round((citasAgendadas / totalLeads) * 100) : 0;
-            const tasaDescarte = totalLeads > 0 ? Math.round((noCalifican / totalLeads) * 100) : 0;
+            const tasaDescarte = totalLeads > 0 ? Math.round((c1Count / totalLeads) * 100) : 0;
 
             // Calculate Response Rate (Tasa de Respuesta)
             const interactedConversations = kpiConversations.filter(c => c.status !== 'new').length;
             const tasaRespuesta = totalLeads > 0 ? Math.round((interactedConversations / totalLeads) * 100) : 0;
 
             // Recent Appointments (from filtered data)
-
             const recentAppointments = kpiConversations
-                .filter(c => c.labels && c.labels.includes('agenda_cita'))
+                .filter(c => c.labels && c.labels.includes('cita_agendada'))
                 .slice(0, 5)
-                .map(conv => ({
-                    id: conv.id,
-                    nombre: conv.custom_attributes?.nombre_completo || conv.meta?.sender?.name || 'Sin Nombre',
-                    celular: conv.custom_attributes?.celular || conv.meta?.sender?.phone_number || 'Sin Celular',
-                    agencia: conv.custom_attributes?.agencia || 'Sin Agencia',
-                    fecha: conv.custom_attributes?.fecha_visita || conv.custom_attributes?.fecha || 'Pendiente',
-                    hora: conv.custom_attributes?.hora_visita || conv.custom_attributes?.hora || '',
-                    status: 'Confirmada'
-                }));
+                .map(conv => {
+                    // Buscar datos primero en contact attributes, luego en conversation attributes
+                    const contactAttrs = conv.meta?.sender?.custom_attributes || {};
+                    const convAttrs = conv.custom_attributes || {};
 
-            // Funnel Data
-            // Each step shows only leads that have that specific label
+                    return {
+                        id: conv.id,
+                        nombre: contactAttrs.nombre_completo || convAttrs.nombre_completo || conv.meta?.sender?.name || 'Sin Nombre',
+                        celular: contactAttrs.celular || convAttrs.celular || conv.meta?.sender?.phone_number || 'Sin Celular',
+                        agencia: contactAttrs.agencia || convAttrs.agencia || 'Sin Agencia',
+                        fecha: contactAttrs.fecha_visita || convAttrs.fecha_visita || contactAttrs.fecha || convAttrs.fecha || 'Pendiente',
+                        hora: contactAttrs.hora_visita || convAttrs.hora_visita || contactAttrs.hora || convAttrs.hora || '',
+                        status: 'Confirmada'
+                    };
+                });
+
+            // Funnel Data - Nombres exactos de labels
             const funnelData = [
-                { label: "Solicita Información", value: solicitaInfoCount, percentage: totalLeads > 0 ? Math.round((solicitaInfoCount / totalLeads) * 100) : 0, color: "hsl(224, 62%, 32%)" },
-                { label: "Interesado", value: leadsInteresados, percentage: totalLeads > 0 ? Math.round((leadsInteresados / totalLeads) * 100) : 0, color: "hsl(142, 60%, 45%)" },
-                { label: "Agenda Cita", value: citasAgendadas, percentage: totalLeads > 0 ? Math.round((citasAgendadas / totalLeads) * 100) : 0, color: "hsl(45, 93%, 58%)" },
-                { label: "Desea un Crédito", value: deseaCreditoCount, percentage: totalLeads > 0 ? Math.round((deseaCreditoCount / totalLeads) * 100) : 0, color: "hsl(142, 60%, 35%)" },
-                { label: "Tiene Dudas", value: tieneDudasCount, percentage: totalLeads > 0 ? Math.round((tieneDudasCount / totalLeads) * 100) : 0, color: "hsl(224, 55%, 45%)" },
-                { label: "No Tiene Joyas de Oro", value: noTieneJoyasCount, percentage: totalLeads > 0 ? Math.round((noTieneJoyasCount / totalLeads) * 100) : 0, color: "hsl(0, 70%, 60%)" },
-                { label: "No Aplica", value: noAplicaCount, percentage: totalLeads > 0 ? Math.round((noAplicaCount / totalLeads) * 100) : 0, color: "hsl(0, 0%, 60%)" },
+                { label: "leads_entrantes", value: leadsEntrantesCount, percentage: totalLeads > 0 ? Math.round((leadsEntrantesCount / totalLeads) * 100) : 0, color: "hsl(200, 70%, 50%)" },
+                { label: "a_", value: a_Count, percentage: totalLeads > 0 ? Math.round((a_Count / totalLeads) * 100) : 0, color: "hsl(224, 62%, 32%)" },
+                { label: "b1", value: b1Count, percentage: totalLeads > 0 ? Math.round((b1Count / totalLeads) * 100) : 0, color: "hsl(142, 60%, 45%)" },
+                { label: "b2", value: b2Count, percentage: totalLeads > 0 ? Math.round((b2Count / totalLeads) * 100) : 0, color: "hsl(142, 60%, 55%)" },
+                { label: "cita_agendada", value: citasAgendadas, percentage: totalLeads > 0 ? Math.round((citasAgendadas / totalLeads) * 100) : 0, color: "hsl(45, 93%, 58%)" },
+                { label: "c1", value: c1Count, percentage: totalLeads > 0 ? Math.round((c1Count / totalLeads) * 100) : 0, color: "hsl(0, 70%, 60%)" },
             ];
 
             // Debugging: Log all unique labels found to help verify KPIs
@@ -280,7 +284,7 @@ export const useDashboardData = (selectedMonth: Date | null = null, selectedWeek
                 const current = weeklyTrendMap.get(dayName)!;
 
                 current.leads++;
-                if (conv.labels && conv.labels.includes('agenda_cita')) {
+                if (conv.labels && conv.labels.includes('cita_agendada')) {
                     current.citas++;
                 }
                 weeklyTrendMap.set(dayName, current);
@@ -316,8 +320,8 @@ export const useDashboardData = (selectedMonth: Date | null = null, selectedWeek
                 if (monthlyTrendMap.has(week)) {
                     const current = monthlyTrendMap.get(week)!;
                     current.leads++;
-                    if (conv.labels && conv.labels.includes('interesado')) current.sqls++;
-                    if (conv.labels && conv.labels.includes('agenda_cita')) current.citas++;
+                    if (conv.labels && (conv.labels.includes('a_') || conv.labels.includes('b1') || conv.labels.includes('b2'))) current.sqls++;
+                    if (conv.labels && conv.labels.includes('cita_agendada')) current.citas++;
                     monthlyTrendMap.set(week, current);
                 }
             });
@@ -325,16 +329,15 @@ export const useDashboardData = (selectedMonth: Date | null = null, selectedWeek
             const monthlyTrend = Array.from(monthlyTrendMap.entries())
                 .map(([date, counts]) => ({ date, ...counts }));
 
-            // Disqualification Reasons
-            const totalDisqualified = noCalifican;
+            // Disqualification Reasons - Simplificado con nuevo esquema
+            const totalDisqualified = c1Count;
             const disqualificationReasons = [
-                { reason: "No tiene joyas de oro", count: noTieneJoyasCount, percentage: totalDisqualified > 0 ? Math.round((noTieneJoyasCount / totalDisqualified) * 100) : 0 },
-                { reason: "No aplica", count: noAplicaCount, percentage: totalDisqualified > 0 ? Math.round((noAplicaCount / totalDisqualified) * 100) : 0 },
-            ].sort((a, b) => b.count - a.count);
+                { reason: "Descartados (C1)", count: c1Count, percentage: 100 },
+            ];
 
-            // Data Capture Stats
+            // Data Capture Stats - Incluir a_, b1, b2, cita_agendada
             const targetConversations = kpiConversations.filter(c =>
-                c.labels && (c.labels.includes('interesado') || c.labels.includes('agenda_cita'))
+                c.labels && (c.labels.includes('a_') || c.labels.includes('b1') || c.labels.includes('b2') || c.labels.includes('cita_agendada'))
             );
             const totalTarget = targetConversations.length;
 
@@ -348,7 +351,10 @@ export const useDashboardData = (selectedMonth: Date | null = null, selectedWeek
             let incompleteConversations = 0;
 
             targetConversations.forEach(conv => {
-                const attrs = conv.custom_attributes || {};
+                // Buscar datos primero en contact attributes, luego en conversation attributes
+                const contactAttrs = conv.meta?.sender?.custom_attributes || {};
+                const convAttrs = conv.custom_attributes || {};
+                const attrs = { ...convAttrs, ...contactAttrs }; // contactAttrs tiene prioridad
                 let fieldsPresent = 0;
 
                 fields.forEach(field => {
@@ -385,8 +391,8 @@ export const useDashboardData = (selectedMonth: Date | null = null, selectedWeek
                     totalLeads,
                     leadsInteresados,
                     citasAgendadas,
-                    deseaCreditoCount,
-                    noCalifican,
+                    deseaCreditoCount: 0, // Ya no se usa en el nuevo esquema
+                    noCalifican: c1Count,
                     tasaAgendamiento,
                     tasaDescarte,
                     tasaRespuesta,
