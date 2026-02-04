@@ -17,6 +17,15 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     persistSession: true,
     autoRefreshToken: true,
   },
+  global: {
+    headers: {
+      'x-client-info': 'supabase-js-web',
+    },
+  },
+  // Deshabilitar el content reporter que causa errores en Vercel
+  db: {
+    schema: 'public',
+  },
 });
 
 // Tipos para TypeScript
