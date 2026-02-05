@@ -69,7 +69,7 @@ export function KPICard({
           </p>
           <p className={cn(
             "font-display font-bold tracking-tight animate-number-count",
-            size === "lg" ? "text-4xl" : size === "md" ? "text-3xl" : "text-2xl"
+            size === "lg" ? "text-3xl" : size === "md" ? "text-2xl" : "text-xl"
           )}>
             {value}
           </p>

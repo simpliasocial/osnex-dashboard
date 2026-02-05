@@ -26,6 +26,9 @@ export interface ChatwootConversation {
         created_at: number;
     };
     timestamp: number;
+    created_at?: number; // Unix timestamp when conversation was created
+    first_reply_created_at?: number; // Unix timestamp of first agent reply
+    waiting_since?: number; // Unix timestamp since waiting for response
     custom_attributes?: {
         [key: string]: any;
     };

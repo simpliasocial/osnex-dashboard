@@ -114,7 +114,7 @@ const Index = () => {
       </div>
 
       {/* Main KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4 mb-8">
         <KPICard
           title="Total de Leads Entrantes"
           value={kpis.totalLeads.toLocaleString()}
@@ -150,6 +150,22 @@ const Index = () => {
           value={`${kpis.tasaAgendamiento}%`}
           subtitle={periodLabel}
           icon={TrendingUp}
+          variant="accent"
+          size="lg"
+        />
+        <KPICard
+          title="Ganancia Mensual"
+          value={formatCurrency(kpis.gananciaMensual)}
+          subtitle={periodLabel}
+          icon={DollarSign}
+          variant="success"
+          size="lg"
+        />
+        <KPICard
+          title="Ganancia Total"
+          value={formatCurrency(kpis.gananciaTotal)}
+          subtitle="Todo el Período"
+          icon={DollarSign}
           variant="accent"
           size="lg"
         />
@@ -321,17 +337,11 @@ const Index = () => {
         >
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="p-4 rounded-lg bg-secondary/50 text-center">
-              <div className="p-4 rounded-lg bg-secondary/50 text-center">
-                <p className="text-2xl font-bold text-primary font-display">0</p>
-                <p className="text-xs text-muted-foreground">Mensajes/Conversación</p>
-              </div>
+              <p className="text-2xl font-bold text-primary font-display">0</p>
               <p className="text-xs text-muted-foreground">Mensajes/Conversación</p>
             </div>
             <div className="p-4 rounded-lg bg-secondary/50 text-center">
-              <div className="p-4 rounded-lg bg-secondary/50 text-center">
-                <p className="text-2xl font-bold text-success font-display">100%</p>
-                <p className="text-xs text-muted-foreground">Uptime</p>
-              </div>
+              <p className="text-2xl font-bold text-success font-display">100%</p>
               <p className="text-xs text-muted-foreground">Uptime</p>
             </div>
             <div className="p-4 rounded-lg bg-secondary/50 text-center">
@@ -339,10 +349,7 @@ const Index = () => {
               <p className="text-xs text-muted-foreground">Errores del Agente</p>
             </div>
             <div className="p-4 rounded-lg bg-secondary/50 text-center">
-              <div className="p-4 rounded-lg bg-secondary/50 text-center">
-                <p className="text-2xl font-bold text-primary font-display">0%</p>
-                <p className="text-xs text-muted-foreground">Tasa de Error</p>
-              </div>
+              <p className="text-2xl font-bold text-primary font-display">0%</p>
               <p className="text-xs text-muted-foreground">Tasa de Error</p>
             </div>
           </div>

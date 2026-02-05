@@ -116,14 +116,69 @@ export const useDashboardData = (selectedMonth: Date | null = null, selectedWeek
                 return convDate >= globalStart && convDate <= globalEnd;
             });
 
-            // Calculate Monthly/Period Profit (Ganancia Mensual) - Filtered
-            const gananciaMensual = kpiConversations.reduce((sum, conv) => {
+            console.log('Date Filter Debug:', {
+                selectedMonth: selectedMonth ? selectedMonth.toISOString() : 'All Time',
+                globalStart: globalStart.toISOString(),
+                globalEnd: globalEnd.toISOString(),
+                totalRawConversations: allConversationsRaw.length,
+                filteredConversations: kpiConversations.length,
+                sampleConversationDates: kpiConversations.slice(0, 3).map(c => ({
+                    id: c.id,
+                    timestamp: c.timestamp,
+                    date: new Date(c.timestamp * 1000).toISOString()
+                }))
+            });
+
+            // Calculate Monthly/Period Profit (Ganancia Mensual) - Filtered by fecha_monto_operacion
+            // IMPORTANTE: Filtra por la fecha en que se ASIGNÓ el monto, no por la fecha de creación de la conversación
+            let gananciaMensual = 0;
+            let conversationsWithMontoInPeriod = 0;
+
+            allConversationsRaw.forEach(conv => {
                 const contactAttrs = conv.meta?.sender?.custom_attributes || {};
                 const convAttrs = conv.custom_attributes || {};
                 const montoVal = contactAttrs.monto_operacion || convAttrs.monto_operacion;
                 const monto = parseMonto(montoVal);
-                return sum + monto;
-            }, 0);
+
+                if (monto > 0) {
+                    // Buscar fecha_monto_operacion (fecha en que se asignó el monto)
+                    const fechaMontoStr = contactAttrs.fecha_monto_operacion || convAttrs.fecha_monto_operacion;
+
+                    let fechaMonto: Date;
+                    if (fechaMontoStr) {
+                        // Si existe fecha_monto_operacion, usarla
+                        fechaMonto = new Date(fechaMontoStr);
+                    } else {
+                        // Fallback: usar la fecha de la conversación
+                        fechaMonto = new Date(conv.timestamp * 1000);
+                        console.warn(`Conversation ${conv.id} has monto_operacion but no fecha_monto_operacion. Using conversation date as fallback.`);
+                    }
+
+                    // Verificar si la fecha del monto está dentro del período seleccionado
+                    const isInPeriod = fechaMonto >= globalStart && fechaMonto <= globalEnd;
+
+                    if (isInPeriod) {
+                        gananciaMensual += monto;
+                        conversationsWithMontoInPeriod++;
+
+                        console.log('Monto included in period:', {
+                            conversationId: conv.id,
+                            monto,
+                            fechaMonto: fechaMonto.toISOString(),
+                            period: `${globalStart.toISOString()} to ${globalEnd.toISOString()}`
+                        });
+                    }
+                }
+            });
+
+            console.log('Revenue Calculation Summary:', {
+                period: selectedMonth ? selectedMonth.toISOString().split('T')[0] : 'All Time',
+                globalStart: globalStart.toISOString(),
+                globalEnd: globalEnd.toISOString(),
+                conversationsWithMontoInPeriod,
+                gananciaMensual,
+                gananciaTotal
+            });
 
 
             // Calculate KPIs from filtered data
@@ -384,7 +439,55 @@ export const useDashboardData = (selectedMonth: Date | null = null, selectedWeek
                 funnelDropoff: 0
             };
 
-            const responseTime = 0;
+            // Calculate Response Time (Average time to first response in minutes)
+            // Chatwoot may provide first_reply_created_at or we need to calculate from messages
+            let totalResponseTime = 0;
+            let conversationsWithResponse = 0;
+
+            kpiConversations.forEach(conv => {
+                let responseTimeMinutes = 0;
+
+                // Method 1: Use first_reply_created_at if available
+                if (conv.first_reply_created_at && conv.created_at) {
+                    const responseTimeSeconds = conv.first_reply_created_at - conv.created_at;
+                    responseTimeMinutes = responseTimeSeconds / 60;
+                    totalResponseTime += responseTimeMinutes;
+                    conversationsWithResponse++;
+                }
+                // Method 2: Use waiting_since (time since last customer message)
+                else if (conv.waiting_since && conv.created_at) {
+                    const responseTimeSeconds = conv.waiting_since - conv.created_at;
+                    responseTimeMinutes = responseTimeSeconds / 60;
+                    totalResponseTime += responseTimeMinutes;
+                    conversationsWithResponse++;
+                }
+                // Method 3: Calculate from messages array if available
+                else if (conv.messages && conv.messages.length > 0) {
+                    const firstAgentMessage = conv.messages.find(msg =>
+                        msg.message_type === 'outgoing' || msg.sender?.type === 'agent_bot'
+                    );
+
+                    if (firstAgentMessage && conv.created_at) {
+                        const firstAgentTime = firstAgentMessage.created_at || firstAgentMessage.timestamp;
+                        if (firstAgentTime) {
+                            const responseTimeSeconds = firstAgentTime - conv.created_at;
+                            responseTimeMinutes = responseTimeSeconds / 60;
+                            totalResponseTime += responseTimeMinutes;
+                            conversationsWithResponse++;
+                        }
+                    }
+                }
+            });
+
+            const responseTime = conversationsWithResponse > 0
+                ? totalResponseTime / conversationsWithResponse
+                : 0;
+
+            console.log('Response Time Calculation:', {
+                totalConversations: kpiConversations.length,
+                conversationsWithResponse,
+                averageResponseTime: responseTime.toFixed(2) + ' min'
+            });
 
             setData({
                 kpis: {
